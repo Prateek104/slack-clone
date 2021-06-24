@@ -1,39 +1,55 @@
-import React from 'react';
-import "./styles.css";
+import React, { useState } from 'react';
+const api = {
+  key: "8651e5312d6d167794d18df97e468250",
+  base: "https://api.openweathermap.org/data/2.5/"
+}
 
-function App() {
- 
+ function App() {
+  const [query, setQuery] = useState('');
+  const [weather, setWeather] = useState({});
 
-  
-  
+  const search = e => {
+    if (e.key === "Enter") {
+      fetch(`${api.base}weather?q=${query}&units=metric&APPID=${api.key}`)
+        .then(res => res.json())
+        .then(result => {
+          setWeather(result);
+          setQuery('');
+          console.log(result);
+        });
+    }
+  }
+
 
   return (
-    <div className="app">
+    <div className={(typeof weather.main != "undefined") ? ((weather.main.temp > 16) ? 'app warm' : 'app') : 'app'}>
       <main>
         <div className="search-box">
           <input 
             type="text"
             className="search-bar"
             placeholder="Search..."
+            onChange={e => setQuery(e.target.value)}
+            value={query}
+            onKeyPress={search}
           />
         </div>
-       
-        
+        {(typeof weather.main != "undefined") ? (
+        <div>
           <div className="location-box">
-            <div className="location">Delhi</div>
-            <div className="date">12-06-2021</div>
+            <div className="location">{weather.name}, {weather.sys.country}</div>
           </div>
           <div className="weather-box">
             <div className="temp">
-              15 C
+              {Math.round(weather.main.temp)}°c
             </div>
-            <div className="weather">Sunny</div>
+            <div className="weather">{weather.weather[0].main}</div>
           </div>
-        
-      
+        </div>
+        ) : ('')}
       </main>
     </div>
   );
-}
+};
 
 export default App;
